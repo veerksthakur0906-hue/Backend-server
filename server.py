@@ -58,14 +58,13 @@ def call_server_ai(system_instruction, user_prompt, preferred_model="gemini"):
             try:
                 client = genai.Client(api_key=GEMINI_KEYS[gemini_index])
                 res = client.models.generate_content(
-                    model='gemini-2.5-flash-lite', 
+                    model='gemini-2.5-flash', 
                     contents=[system_instruction, user_prompt]
                 )
                 if res.text:
                     return res.text
             except Exception as e:
-                if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e) or "404" in str(e):
-                    pass
+                pass
             gemini_index = (gemini_index + 1) % len(GEMINI_KEYS)
             attempts += 1
 
@@ -77,7 +76,7 @@ def call_server_ai(system_instruction, user_prompt, preferred_model="gemini"):
 
 @app.route('/api/generate', methods=['POST'])
 def generate_endpoint():
-    data = request.json
+    data = request.json or {}
     prompt = data.get("prompt", "")
     system_instruction = data.get("system_instruction", "You are a helpful AI assistant.")
     model_type = data.get("model", "gemini")
